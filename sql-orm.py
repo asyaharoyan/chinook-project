@@ -1,68 +1,75 @@
 from sqlalchemy import (
-    create_engine, Column, Float, ForeginKey, Integer, String
+    create_engine, Column, Float, ForeignKey, Integer, String
 )
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-from sqalchemy.ext.declarative import declarative_base
-from sqalchemy.orm import sessionmaker
 
 # executing the instructions from the "chinook" database
 db = create_engine("postgresql:///chinook")
 base = declarative_base()
 
 class Artist(base):
-    __tablenae__ = "artist"
-    ArtistId = Column(Integer, primary_key=True)
-    Name = Column(String)
+    __tablename__ = "artist"
+    artist_id = Column(Integer, primary_key=True)
+    name = Column(String)
 
 class Album(base):
-    __tablenae__ = "album"
-    AlbumId = Column(Integer, primary_key=True)
-    Title = Column(String)
-    ArtistId = Column(Integer, ForeginKey(Artist.ArtistId))
+    __tablename__ = "album"
+    album_id = Column(Integer, primary_key=True)
+    title = Column(String)
+    artist_id = Column(Integer, ForeignKey("Artist.artist_id"))
 
 class Track(base):
-    __tablenae__ = "track"
-    TrackId = Column(Integer, primary_key=True)
-    Name = Column(String)
-    AlbumId = Column(Integer, ForeginKey(Album.AlbumId))
-    MediaTypeId = Column(Integer, primary_key=False)
-    GenreId = Column(Integer, primary_key=False)
-    Composer = Column(String)
-    Milliseconds = Column(Integer)
-    Bytes = Column(Integer)
-    UnitPrice = Column(Float)
+    __tablename__ = "track"
+    track_id = Column(Integer, primary_key=True)
+    name = Column(String)
+    album_id = Column(Integer, ForeignKey("Album.album_id"))
+    media_type_id = Column(Integer, primary_key=False)
+    genre_id = Column(Integer, primary_key=False)
+    composer = Column(String)
+    milliseconds = Column(Integer)
+    bytes = Column(Integer)
+    unit_price = Column(Float)
 
 
 # Instead of connecting to the database directly, we will ask for a session
 # create a new instance of sessionmaker, then point to our engine(the db)
-Session = session(db)
+Session = sessionmaker(db)
 # opens an actual session by calling the Session() subclass defined above
 session = Session()
 
 # creating the database using declarative_base subclass
-base.metadata.createall(db)
+base.metadata.create_all(db)
 
     
 # Query 1 - select all records from the "Artist" table
-artists = session.query(Artist)
+# artists = session.query(Artist)
 
-for artist in artists:
-    print(artist.ArtistId, artist.name, sep=" | ")
+# for artist in artists:
+#     print(artist.artist_id, artist.name, sep=" | ")
 
 # Query 2 - select only the "Name" column from the "Artist" table
-# select_query = artist_table.select().with_only_columns([artist_table.c.name])
+# artists = session.query(Artist)
+
+# for artist in artists:
+#     print(artist.name)
 
 # Query 3 - select only 'Queen' from the "Artist" table
-# select_query = artist_table.select().where(artist_table.c.name == "Queen")
+# artist = session.query(Artist).filter_by(name="Queen").first()
+# print(artist.artist_id, artist.name, sep=" | ")
+
 
 # Query 4 - select only by 'ArtistId' #51 from the "Artist" table
-# select_query = artist_table.select().where(artist_table.c.artist_id == 51)
+# artist = session.query(Artist).filter_by(artist_id=51).first()
+# print(artist.name, artist.artist_id, sep=" | ")
 
 # Query 5 - select only the albums with 'ArtistId' #51 on the "Album" table
-# select_query = album_table.select().where(album_table.c.artist_id == 51)
+albums = session.query(Album).filter_by(artist_id=51)
+for album in albums:
+    print(album.album_id, album.title, album.artist_id, sep=" | ")
 
 # Query 6 - select all tracks where the composer is 'Queen' from the "Track" table
-# select_query = track_table.select().where(track_table.c.composer == "Queen")
-
-# Query 7 - select all tracks where the composer is 'AC/DC' from the "Track" table
-# select_query = track_table.select().where(track_table.c.composer == "AC/DC")
+tracks = session.query(Track).filter_by(composer="Queen")
+for track in tracks:
+    print(track.track_id, track.name, track.composer, sep=" | ")
