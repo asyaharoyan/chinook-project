@@ -58,7 +58,7 @@ with db.connect() as connection:
     # select_query = track_table.select().where(track_table.c.composer == "Queen")
 
     # Query 7 - select all tracks where the composer is 'AC/DC' from the "Track" table
-    select_query = track_table.select().where(track_table.c.composer == "AC/DC")
+    # select_query = track_table.select().where(track_table.c.composer == "AC/DC")
 
 
 
